@@ -1,0 +1,138 @@
+-- Grow a Garden Loading Screen (Delta Safe, No Discord, Nice Background)
+
+-- Remove old GUI if exists
+pcall(function()
+    if game.CoreGui:FindFirstChild("GrowAGardenLoading") then
+        game.CoreGui.GrowAGardenLoading:Destroy()
+    end
+end)
+
+-- Create ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "GrowAGardenLoading"
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Main Frame
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 420, 0, 340)
+Main.Position = UDim2.new(0.5, -210, 0.5, -170)
+Main.BackgroundColor3 = Color3.fromRGB(28, 33, 49)
+Main.BackgroundTransparency = 0
+Main.BorderSizePixel = 0
+Main.Parent = ScreenGui
+
+-- Nice animated gradient background
+local UIGradient = Instance.new("UIGradient")
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(67, 206, 162)),
+    ColorSequenceKeypoint.new(0.4, Color3.fromRGB(24, 90, 157)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(252, 186, 159))
+}
+UIGradient.Rotation = 35
+UIGradient.Parent = Main
+
+-- Decorative blurred circles for a modern look
+local function makeCircle(x, y, size, color, transparency)
+    local c = Instance.new("Frame")
+    c.Size = UDim2.new(0, size, 0, size)
+    c.Position = UDim2.new(0, x, 0, y)
+    c.BackgroundColor3 = color
+    c.BackgroundTransparency = transparency or 0.45
+    c.BorderSizePixel = 0
+    c.Parent = Main
+    local uic = Instance.new("UICorner", c)
+    uic.CornerRadius = UDim.new(1,0)
+    c.ZIndex = 0
+    return c
+end
+makeCircle(-50, -30, 110, Color3.fromRGB(67,206,162), 0.7)
+makeCircle(320, 220, 80, Color3.fromRGB(252, 186, 159), 0.8)
+makeCircle(320, -40, 70, Color3.fromRGB(255, 237, 210), 0.85)
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Text = "🌴 GROW A 🌴"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 34
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.BackgroundTransparency = 1
+Title.Size = UDim2.new(1,0,0,38)
+Title.Position = UDim2.new(0,0,0,38)
+Title.Parent = Main
+
+-- Subtitle
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Text = "GARDEN"
+Subtitle.Font = Enum.Font.GothamBold
+Subtitle.TextSize = 34
+Subtitle.TextColor3 = Color3.fromRGB(255,255,255)
+Subtitle.BackgroundTransparency = 1
+Subtitle.Size = UDim2.new(1,0,0,38)
+Subtitle.Position = UDim2.new(0,0,0,80)
+Subtitle.Parent = Main
+
+-- Loading text
+local LoadingText = Instance.new("TextLabel")
+LoadingText.Text = "Script Loading Please Wait for a While"
+LoadingText.Font = Enum.Font.Gotham
+LoadingText.TextSize = 16
+LoadingText.TextColor3 = Color3.fromRGB(220,220,220)
+LoadingText.BackgroundTransparency = 1
+LoadingText.Size = UDim2.new(1,0,0,22)
+LoadingText.Position = UDim2.new(0,0,0,130)
+LoadingText.Parent = Main
+
+-- Bar BG
+local BarBG = Instance.new("Frame")
+BarBG.Size = UDim2.new(0,300,0,32)
+BarBG.Position = UDim2.new(0.5,-150,0,180)
+BarBG.BackgroundColor3 = Color3.fromRGB(255,255,255)
+BarBG.BorderSizePixel = 0
+BarBG.Parent = Main
+local BarUICorner = Instance.new("UICorner")
+BarUICorner.CornerRadius = UDim.new(0,12)
+BarUICorner.Parent = BarBG
+
+-- Bar Fill
+local BarFill = Instance.new("Frame")
+BarFill.Size = UDim2.new(0,0,1,0)
+BarFill.Position = UDim2.new(0,0,0,0)
+BarFill.BackgroundColor3 = Color3.fromRGB(67,206,162)
+BarFill.BorderSizePixel = 0
+BarFill.Parent = BarBG
+local FillUICorner = Instance.new("UICorner")
+FillUICorner.CornerRadius = UDim.new(0,12)
+FillUICorner.Parent = BarFill
+local BarGradient = Instance.new("UIGradient")
+BarGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(67,206,162)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(24,90,157))
+}
+BarGradient.Rotation = 0
+BarGradient.Parent = BarFill
+
+-- Percent
+local PercentText = Instance.new("TextLabel")
+PercentText.Text = "0%"
+PercentText.Font = Enum.Font.GothamBold
+PercentText.TextSize = 26
+PercentText.TextColor3 = Color3.fromRGB(255,255,255)
+PercentText.BackgroundTransparency = 1
+PercentText.Size = UDim2.new(1,0,0,32)
+PercentText.Position = UDim2.new(0,0,0,225)
+PercentText.Parent = Main
+
+-- Animate loading bar
+local percent = 0
+spawn(function()
+    while percent < 100 do
+        percent = math.min(percent + math.random(4,12), 100)
+        BarFill:TweenSize(UDim2.new(percent/100,0,1,0), "Out", "Quad", 0.23, true)
+        PercentText.Text = percent.."%"
+        wait(0.30 + math.random()*0.10)
+    end
+    PercentText.Text = "Loaded!"
+    wait(0.7)
+    ScreenGui:Destroy()
+end)
