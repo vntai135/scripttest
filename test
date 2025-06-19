@@ -1,0 +1,119 @@
+-- Grow a Garden Loading Screen (Roblox, Delta executor)
+-- Made by Copilot for vntai135
+
+-- // CONFIG
+local TITLE = "GROW A"
+local SUBTITLE = "GARDEN"
+local LOADING_TEXT = "Script Loading Please Wait for a While"
+local BAR_LABEL = "discord.gg/darkscripts"
+
+-- // UI Library (uses Roblox Drawing API for maximum compatibility)
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+-- Center screen
+local cam = workspace.CurrentCamera
+local ViewportSize = cam and cam.ViewportSize or Vector2.new(800,600)
+local screenW, screenH = ViewportSize.X, ViewportSize.Y
+
+-- // Draw Contour BG (fake)
+local bg = Drawing.new("Rectangle")
+bg.Size = Vector2.new(math.min(430, screenW*0.95), math.min(340, screenH*0.7))
+bg.Filled = true
+bg.Color = Color3.fromRGB(34,34,34)
+bg.Position = Vector2.new((screenW-bg.Size.X)/2, (screenH-bg.Size.Y)/2)
+bg.Transparency = 0.92
+bg.Visible = true
+
+-- // Title (with palm emojis)
+local title = Drawing.new("Text")
+title.Size = 34
+title.Text = "🌴 "..TITLE.." 🌴"
+title.Color = Color3.fromRGB(255,255,255)
+title.Position = bg.Position + Vector2.new(30,24)
+title.Center = false
+title.Outline = true
+title.Font = 2
+title.Visible = true
+
+local subtitle = Drawing.new("Text")
+subtitle.Size = 34
+subtitle.Text = SUBTITLE
+subtitle.Color = Color3.fromRGB(255,255,255)
+subtitle.Position = title.Position + Vector2.new(0,38)
+subtitle.Center = false
+subtitle.Outline = true
+subtitle.Font = 2
+subtitle.Visible = true
+
+-- // Loading text
+local loadingText = Drawing.new("Text")
+loadingText.Size = 16
+loadingText.Text = LOADING_TEXT
+loadingText.Color = Color3.fromRGB(220,220,220)
+loadingText.Position = subtitle.Position + Vector2.new(0,38)
+loadingText.Center = false
+loadingText.Outline = false
+loadingText.Font = 2
+loadingText.Visible = true
+
+-- // Bar BG
+local barW, barH = 300, 32
+local barY = loadingText.Position.Y + 30
+local barBg = Drawing.new("Rectangle")
+barBg.Size = Vector2.new(barW, barH)
+barBg.Position = Vector2.new(bg.Position.X + (bg.Size.X-barW)/2, barY)
+barBg.Color = Color3.fromRGB(255,255,255)
+barBg.Filled = true
+barBg.Transparency = 1
+barBg.Visible = true
+
+-- // Bar Fill
+local barFill = Drawing.new("Rectangle")
+barFill.Size = Vector2.new(0, barH)
+barFill.Position = barBg.Position
+barFill.Color = Color3.fromRGB(34,34,34)
+barFill.Filled = true
+barFill.Visible = true
+
+-- // Bar Label
+local barLabel = Drawing.new("Text")
+barLabel.Size = 16
+barLabel.Text = BAR_LABEL
+barLabel.Color = Color3.fromRGB(34,34,34)
+barLabel.Position = barBg.Position + Vector2.new(barW/2, 7)
+barLabel.Center = true
+barLabel.Outline = false
+barLabel.Font = 2
+barLabel.Visible = true
+
+-- // Percent Text
+local percentText = Drawing.new("Text")
+percentText.Size = 26
+percentText.Text = "0%"
+percentText.Color = Color3.fromRGB(255,255,255)
+percentText.Position = Vector2.new(bg.Position.X + bg.Size.X/2, barBg.Position.Y + barH + 18)
+percentText.Center = true
+percentText.Outline = true
+percentText.Font = 2
+percentText.Visible = true
+
+-- // Animate loading bar
+local percent = 0
+local running = true
+
+task.spawn(function()
+    while running and percent < 100 do
+        percent = math.min(percent + math.random(3,9), 100)
+        barFill.Size = Vector2.new((percent/100)*barW, barH)
+        percentText.Text = tostring(percent).."%"
+        wait(0.35 + math.random()*0.12)
+    end
+    percentText.Text = "Loaded!"
+    wait(0.7)
+    -- Hide all
+    for _,v in ipairs({bg,title,subtitle,loadingText,barBg,barFill,barLabel,percentText}) do
+        v.Visible = false
+        v:Remove()
+    end
+end)
