@@ -46,12 +46,12 @@ Title.TextStrokeColor3 = Color3.fromRGB(0,0,0)
 Title.Font = Enum.Font.GothamBlack
 Title.TextScaled = true
 
--- Thanh tiến trình nền
+-- Thanh tiến trình nền (TO: chỉnh to hơn)
 local ProgressBarBg = Instance.new("Frame")
 ProgressBarBg.Parent = Background
 ProgressBarBg.AnchorPoint = Vector2.new(0.5, 1)
 ProgressBarBg.Position = UDim2.new(0.5, 0, 0.96, 0)
-ProgressBarBg.Size = UDim2.new(0.7, 0, 0.03, 0)
+ProgressBarBg.Size = UDim2.new(0.8, 0, 0.07, 0) -- Tăng rộng lên 0.8 và cao lên 0.07 (mặc định là 0.7, 0.03)
 ProgressBarBg.BackgroundColor3 = Color3.fromRGB(50,50,50)
 ProgressBarBg.BackgroundTransparency = 0.4
 ProgressBarBg.BorderSizePixel = 0
