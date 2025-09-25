@@ -1,0 +1,199 @@
+-- Intro animation
+local tweenser = game:GetService("TweenService")
+local p = game:GetService("Players")
+local lp = p.LocalPlayer
+local plrgui = lp:WaitForChild("PlayerGui")
+local introsgui = Instance.new("ScreenGui")
+introsgui.Parent = plrgui
+introsgui.ResetOnSpawn = false
+local blur = Instance.new("BlurEffect")
+blur.Size = 50
+blur.Parent = game:GetService("Lighting")
+local intro = Instance.new("ImageButton")
+intro.Position = UDim2.new(0.5, -500, 0.5, -50)
+intro.Size = UDim2.new(0, 100, 0, 100)
+intro.Image = "rbxassetid://72049465060021"
+intro.ImageTransparency = 0
+intro.BackgroundTransparency = 1
+intro.Visible = true
+intro.Parent = introsgui
+local introcorner = Instance.new("UICorner")
+introcorner.CornerRadius = UDim.new(1, 0)
+introcorner.Parent = intro
+local goal = {}
+goal.Position = UDim2.new(0.5, -50, 0.5, -50)
+local tweeninfo = TweenInfo.new(
+ 2,
+ Enum.EasingStyle.Linear,
+ Enum.EasingDirection.Out,
+ 0,
+ false,
+ 0
+)
+local tween = tweenser:Create(intro, tweeninfo, goal)
+tween:Play()
+tween.Completed:Connect(function()
+ task.wait(1)
+ blur:Destroy()
+ for i = 0, 1, 0.05 do
+  intro.ImageTransparency = i
+ end
+ game:GetService("StarterGui"):SetCore("SendNotification", {
+  Title = "[ℹ️] Executor:",
+  Text = identifyexecutor and (identifyexecutor() or getexecutorname() or "Unknown") or "Unknown"
+ })
+ game:GetService("StarterGui"):SetCore("SendNotification", {
+  Title = "[ℹ️] Greetings",
+  Text = "Welcome to Chunk Hub, "..lp.Name.."."
+ })
+ intro:Destroy()
+end)
+tween.Completed:Wait()
+task.wait(2)
+
+-- MENU CHỨC NĂNG
+local sgui = Instance.new("ScreenGui")
+sgui.Name = "ChunkHubMenu"
+sgui.Parent = plrgui
+sgui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0.375, 0, 0.42135, 0)
+MainFrame.Position = UDim2.new(0.3075, 0, 0.23034, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(46, 46, 46)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = sgui
+
+local MainFrameCorner = Instance.new("UICorner")
+MainFrameCorner.CornerRadius = UDim.new(0, 20)
+MainFrameCorner.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
+Title.Name = "Title"
+Title.Size = UDim2.new(1, 0, 0.2, 0)
+Title.Position = UDim2.new(0, 0, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Text = "Chunk Hub Menu"
+Title.TextColor3 = Color3.fromRGB(156, 119, 84)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextScaled = true
+Title.Parent = MainFrame
+
+local StartButton = Instance.new("TextButton")
+StartButton.Name = "StartButton"
+StartButton.Size = UDim2.new(0.9, 0, 0.18, 0)
+StartButton.Position = UDim2.new(0.05, 0, 0.22, 0)
+StartButton.BackgroundColor3 = Color3.fromRGB(46, 201, 46)
+StartButton.BorderSizePixel = 0
+StartButton.Text = "Start Script"
+StartButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+StartButton.Font = Enum.Font.SourceSansBold
+StartButton.TextScaled = true
+StartButton.Parent = MainFrame
+
+local StartButtonCorner = Instance.new("UICorner")
+StartButtonCorner.CornerRadius = UDim.new(0, 20)
+StartButtonCorner.Parent = StartButton
+
+-- BẢNG CHỨC NĂNG HIỆN SAU KHI BẤM START
+local FunctionFrame = Instance.new("Frame")
+FunctionFrame.Name = "FunctionFrame"
+FunctionFrame.Size = UDim2.new(0.9, 0, 0.45, 0)
+FunctionFrame.Position = UDim2.new(0.05, 0, 0.42, 0)
+FunctionFrame.BackgroundColor3 = Color3.fromRGB(41, 201, 41)
+FunctionFrame.BorderSizePixel = 0
+FunctionFrame.Visible = false
+FunctionFrame.Parent = MainFrame
+
+local FunctionCorner = Instance.new("UICorner")
+FunctionCorner.CornerRadius = UDim.new(0, 20)
+FunctionCorner.Parent = FunctionFrame
+
+local FunctionTitle = Instance.new("TextLabel")
+FunctionTitle.Name = "FunctionTitle"
+FunctionTitle.Size = UDim2.new(1, 0, 0.25, 0)
+FunctionTitle.Position = UDim2.new(0, 0, 0, 0)
+FunctionTitle.BackgroundTransparency = 1
+FunctionTitle.Text = "BẢNG CHỨC NĂNG"
+FunctionTitle.TextColor3 = Color3.fromRGB(46, 46, 46)
+FunctionTitle.Font = Enum.Font.SourceSansBold
+FunctionTitle.TextScaled = true
+FunctionTitle.Parent = FunctionFrame
+
+local InfoLabel = Instance.new("TextLabel")
+InfoLabel.Name = "InfoLabel"
+InfoLabel.Size = UDim2.new(1, -10, 0.7, 0)
+InfoLabel.Position = UDim2.new(0, 5, 0.28, 0)
+InfoLabel.BackgroundTransparency = 1
+InfoLabel.Text = "Các chức năng chính sẽ xuất hiện tại đây!\nBạn có thể thêm nút, label, v.v. tuỳ ý."
+InfoLabel.TextColor3 = Color3.fromRGB(46, 46, 46)
+InfoLabel.Font = Enum.Font.SourceSans
+InfoLabel.TextWrapped = true
+InfoLabel.TextScaled = true
+InfoLabel.Parent = FunctionFrame
+
+-- Thêm NÚT CHỨC NĂNG mẫu
+local SampleFuncBtn = Instance.new("TextButton")
+SampleFuncBtn.Name = "SampleFuncBtn"
+SampleFuncBtn.Size = UDim2.new(0.45, 0, 0.25, 0)
+SampleFuncBtn.Position = UDim2.new(0.05, 0, 0.7, 0)
+SampleFuncBtn.BackgroundColor3 = Color3.fromRGB(156, 119, 84)
+SampleFuncBtn.Text = "Chức năng mẫu"
+SampleFuncBtn.TextColor3 = Color3.fromRGB(255,255,255)
+SampleFuncBtn.Font = Enum.Font.SourceSansBold
+SampleFuncBtn.TextScaled = true
+SampleFuncBtn.Parent = FunctionFrame
+
+SampleFuncBtn.MouseButton1Click:Connect(function()
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Chunk Hub",
+        Text = "Bạn đã bấm chức năng mẫu!"
+    })
+end)
+
+-- loader của bạn, nếu muốn có thể tự động tạo GUI cho từng game
+function loader()
+    if game.CreatorId == 35102746 then -- Fish It
+        loadstring(game:HttpGet("https://cdn.authguard.org/virtual-file/8a0754111c4748238bcfc4ffcd271421"))()
+    elseif game.CreatorId == 32333865 then -- Bl
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/08v3/ChunkHub/refs/heads/main/bl.txt"))()
+    elseif game.CreatorId == 4372130 then -- Blox Fruits
+        loadstring(game:HttpGet("https://cdn.authguard.org/virtual-file/2cfd6b71b585443e8fb9307010812ce2"))()
+    elseif game.CreatorId == 2613928 then -- Arsenal
+        loadstring(game:HttpGet("https://cdn.authguard.org/virtual-file/1070547baa734c15b34d2cc0ea4b4db2"))()
+    elseif game.CreatorId == 947178762 then -- Case Rolling Rng
+        loadstring(game:HttpGet("https://cdn.authguard.org/virtual-file/7832a535d4774da49692303718cfd9b8"))()
+    elseif game.PlaceId == 3101667897 then -- Legends Of Speed
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/08v3/ChunkHub/refs/heads/main/legendofspeed.txt"))()
+    elseif game.CreatorId == 4705120 then -- Ninja Legends
+        loadstring(game:HttpGet("https://cdn.authguard.org/virtual-file/39ffb25da0ee485e8740113ac7149a48"))()
+    elseif game.CreatorId == 35871968 then -- Untitled Fishing Game
+        loadstring(game:HttpGet("https://cdn.authguard.org/virtual-file/5633300e7c0843818556bbb968530f05"))()
+    elseif game.CreatorId == 36097435 then -- Tennis Clash
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/08v3/ChunkHub/refs/heads/main/tennisclash.txt"))()
+    elseif game.CreatorId == 6042520 then -- 99 Night
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/08v3/ChunkHub/refs/heads/main/99n.txt"))()
+    elseif game.CreatorId == 35815907 then -- Sab
+        loadstring(game:HttpGet("https://cdn.authguard.org/virtual-file/f661d800b2294a99823a5400128bb649"))()
+    elseif game.CreatorId == 35789249 then -- GaG
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/08v3/ChunkHub/refs/heads/main/gag.txt"))()
+    elseif game.CreatorId == 12836673 then -- Blade Ball
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/08v3/ChunkHub/refs/heads/main/bladeball.txt"))()
+    elseif game.CreatorId == 295182 then -- Adopt Me
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/08v3/ChunkHub/refs/heads/main/adoptme.txt",true))()
+    else
+        game.Players.LocalPlayer:Kick("Unsupported game")
+    end
+end
+
+StartButton.MouseButton1Click:Connect(function()
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "[ℹ️] Chunk Hub:",
+        Text = "Đang chạy script!"
+    })
+    FunctionFrame.Visible = true -- HIỆN BẢNG CHỨC NĂNG!
+    loader() -- chạy script cho game
+end)
